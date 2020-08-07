@@ -10,7 +10,11 @@ from bitlyhelper import BitlyHelper
 from forms import RegistrationForm, LoginForm
 from forms import CreateTableForm
 
-from mockdbhelper import MockDBHelper as DBHelper
+if config.test:
+    from mockdbhelper import MockDBHelper as DBHelper
+else:
+    from dbhelper import DBHelper
+
 from user import User
 DB = DBHelper()
 PH = PasswordHelper()
@@ -72,7 +76,7 @@ def account_createtable():
     form = CreateTableForm(request.form)
     if form.validate():
         tableid = DB.add_table(form.tablenumber.data, current_user.get_id())
-        new_url = BH.shorthen_url(config.base_url+ "newrequest/" + tableid)
+        new_url = BH.shorthen_url(config.base_url+ "newrequest/" + str(tableid))
         DB.update_table(tableid, new_url)
         return redirect(url_for('account'))
     return render_template("account.html", createtableform=form,
